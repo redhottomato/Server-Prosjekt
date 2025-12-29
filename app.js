@@ -9,6 +9,11 @@ import participantsRouter from "./routes/participants.js";
 
 dotenv.config();
 
+if (!process.env.ADMIN_USERNAME || !process.env.ADMIN_PASSWORD) {
+    console.error("Missing ADMIN_USERNAME / ADMIN_PASSWORD in environment.");
+    process.exit(1);
+}
+
 const app = express();
 app.use(express.json());
 app.use("/participants", basicAuth, participantsRouter);
