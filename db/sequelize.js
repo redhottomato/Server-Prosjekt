@@ -7,6 +7,20 @@ dotenv.config();
 
 const sslEnabled = process.env.DB_SSL === "true";
 
+function getCaPath() {
+    // 1) Render secret file location
+    const renderPath = "/etc/secrets/ca.pem";
+    if (fs.existsSync(renderPath)) return renderPath;
+
+    // 2) Local dev path
+    const localPath = path.resolve("certs/ca.pem");
+    if (fs.existsSync(localPath)) return localPath;
+
+    return null;
+}
+
+const caPath = getCaPath();
+
 const sequelize = new Sequelize(
     process.env.DB_NAME,
     process.env.DB_USER,
@@ -18,10 +32,9 @@ const sequelize = new Sequelize(
         logging: false,
         dialectOptions: sslEnabled
             ? {
-                ssl: {
-                    ca: fs.readFileSync(path.resolve("certs/ca.pem")),
-                    rejectUnauthorized: true,
-                },
+                ssl: caPath
+                    ? { ca: fs.readFileSync(caPath), rejectUnauthorized: true }
+                    : { rejectUnauthorized: true },
             }
             : {},
     }
