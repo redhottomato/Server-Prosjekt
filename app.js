@@ -2,14 +2,17 @@ import express from "express";
 import dotenv from "dotenv";
 
 import sequelize from "./db/sequelize.js";
-import { Admin } from "./models/index.js"; // viktig: relasjoner registreres også
-
+import { Admin } from "./models/index.js";
 import { basicAuth } from "./middleware/basicAuth.js";
+import participantsRouter from "./routes/participants.js";
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// mount routes
+app.use("/participants", basicAuth, participantsRouter);
 
 app.get("/", (req, res) => res.json({ message: "Census API is running" }));
 
@@ -22,11 +25,9 @@ async function start() {
         await sequelize.authenticate();
         console.log("DB connection OK");
 
-        // Midlertidig for å oppdatere tabeller uten migrasjoner
         await sequelize.sync({ alter: true });
         console.log("DB synced");
 
-        // Seed admin iht. krav
         await Admin.findOrCreate({
             where: { login: "admin" },
             defaults: { password: "P4ssword" },
