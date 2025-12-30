@@ -6,13 +6,12 @@ const Participant = sequelize.define(
     {
         id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
 
+        email: { type: DataTypes.STRING, allowNull: false, unique: true },
         firstName: { type: DataTypes.STRING, allowNull: false },
         lastName: { type: DataTypes.STRING, allowNull: false },
 
-        email: { type: DataTypes.STRING, allowNull: true, unique: true },
-        phone: { type: DataTypes.STRING, allowNull: true },
-
-        idNumber: { type: DataTypes.STRING, allowNull: true }, // f.eks. ID/passnr (valgfritt)
+        // yyyy-mm-dd (DATEONLY)
+        dob: { type: DataTypes.DATEONLY, allowNull: false },
     },
     {
         tableName: "participants",

@@ -1,29 +1,61 @@
 import express from "express";
-import Participant from "../models/Participant.js";
+import { Participant } from "../models/index.js";
 
 const router = express.Router();
+
+function isValidDateOnly(str) {
+    // Expect "YYYY-MM-DD"
+    if (typeof str !== "string") return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+
+    const d = new Date(str);
+    if (Number.isNaN(d.getTime())) return false;
+
+    // Ensure it doesn't auto-correct to another date (e.g. 2025-02-31)
+    const [y, m, day] = str.split("-").map(Number);
+    return (
+        d.getUTCFullYear() === y &&
+        d.getUTCMonth() + 1 === m &&
+        d.getUTCDate() === day
+    );
+}
 
 /**
  * POST /participants
  * Create participant
+ * Required: email, firstName, lastName, dob (YYYY-MM-DD)
  */
 router.post("/", async (req, res) => {
     try {
-        const { firstName, lastName, email, phone, idNumber } = req.body;
+        const { email, firstName, lastName, dob } = req.body;
 
-        if (!firstName || !lastName) {
+        if (!email || !firstName || !lastName || !dob) {
             return res.status(400).json({
                 error: "Bad Request",
-                message: "firstName and lastName are required.",
+                message: "email, firstName, lastName and dob are required.",
+            });
+        }
+
+        // Basic email format check (lightweight)
+        if (typeof email !== "string" || !email.includes("@")) {
+            return res.status(400).json({
+                error: "Bad Request",
+                message: "email must be a valid email address.",
+            });
+        }
+
+        if (!isValidDateOnly(dob)) {
+            return res.status(400).json({
+                error: "Bad Request",
+                message: "dob must be a valid date in format YYYY-MM-DD.",
             });
         }
 
         const created = await Participant.create({
-            firstName,
-            lastName,
-            email: email ?? null,
-            phone: phone ?? null,
-            idNumber: idNumber ?? null,
+            email: email.trim().toLowerCase(),
+            firstName: String(firstName).trim(),
+            lastName: String(lastName).trim(),
+            dob,
         });
 
         return res.status(201).json({
@@ -31,7 +63,6 @@ router.post("/", async (req, res) => {
             participant: created,
         });
     } catch (err) {
-        // Duplicate email (unique constraint) -> better message
         if (err?.name === "SequelizeUniqueConstraintError") {
             return res.status(409).json({
                 error: "Conflict",
@@ -70,7 +101,7 @@ router.get("/", async (req, res) => {
 
 /**
  * GET /participants/:id
- * Get one participant
+ * Get one by numeric id
  */
 router.get("/:id", async (req, res) => {
     try {
@@ -104,6 +135,7 @@ router.get("/:id", async (req, res) => {
 /**
  * PUT /participants/:id
  * Update participant
+ * dob must stay valid YYYY-MM-DD if provided
  */
 router.put("/:id", async (req, res) => {
     try {
@@ -123,14 +155,30 @@ router.put("/:id", async (req, res) => {
             });
         }
 
-        const { firstName, lastName, email, phone, idNumber } = req.body;
+        const { email, firstName, lastName, dob } = req.body;
 
-        // Update only provided fields
-        if (firstName !== undefined) item.firstName = firstName;
-        if (lastName !== undefined) item.lastName = lastName;
-        if (email !== undefined) item.email = email;
-        if (phone !== undefined) item.phone = phone;
-        if (idNumber !== undefined) item.idNumber = idNumber;
+        if (email !== undefined) {
+            if (typeof email !== "string" || !email.includes("@")) {
+                return res.status(400).json({
+                    error: "Bad Request",
+                    message: "email must be a valid email address.",
+                });
+            }
+            item.email = email.trim().toLowerCase();
+        }
+
+        if (firstName !== undefined) item.firstName = String(firstName).trim();
+        if (lastName !== undefined) item.lastName = String(lastName).trim();
+
+        if (dob !== undefined) {
+            if (!isValidDateOnly(dob)) {
+                return res.status(400).json({
+                    error: "Bad Request",
+                    message: "dob must be a valid date in format YYYY-MM-DD.",
+                });
+            }
+            item.dob = dob;
+        }
 
         await item.save();
 
@@ -156,7 +204,8 @@ router.put("/:id", async (req, res) => {
 
 /**
  * DELETE /participants/:id
- * Delete participant
+ * Hard delete participant
+ * (OK for participants unless your task says otherwise)
  */
 router.delete("/:id", async (req, res) => {
     try {
