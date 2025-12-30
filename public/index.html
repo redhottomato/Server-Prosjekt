@@ -13,55 +13,67 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
             background: #f7f9fb;
             color: #222;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 960px;
             background: #ffffff;
             padding: 40px 48px;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            text-align: center;
+            text-align: left;
+            /* ← important */
         }
 
         h1 {
             margin-top: 0;
-            font-size: 2.4rem;
+            font-size: 2.3rem;
             color: #1e8e3e;
-            /* green */
+            text-align: center;
         }
 
         h2 {
-            margin-top: 32px;
-            font-size: 1.4rem;
+            margin-top: 36px;
+            font-size: 1.6rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 6px;
+        }
+
+        h3 {
+            margin-top: 24px;
+            font-size: 1.2rem;
         }
 
         p {
-            font-size: 1rem;
             line-height: 1.6;
-            margin: 12px 0;
+            margin: 10px 0;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin: 6px 0;
         }
 
         code {
             background: #f1f3f5;
-            padding: 4px 8px;
+            padding: 3px 7px;
             border-radius: 6px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-family: ui-monospace, Menlo, Consolas, monospace;
             font-size: 0.95rem;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 16px 0;
-        }
-
-        li {
-            margin: 8px 0;
+        pre {
+            background: #f1f3f5;
+            padding: 14px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
         }
 
         .note {
@@ -70,13 +82,26 @@
             background: #f1f8ff;
             border-left: 4px solid #1e88e5;
             border-radius: 8px;
-            text-align: left;
         }
 
-        footer {
-            margin-top: 32px;
-            font-size: 0.9rem;
-            color: #666;
+        .method {
+            font-weight: bold;
+        }
+
+        .get {
+            color: #1565c0;
+        }
+
+        .post {
+            color: #2e7d32;
+        }
+
+        .put {
+            color: #ef6c00;
+        }
+
+        .delete {
+            color: #c62828;
         }
     </style>
 </head>
@@ -86,53 +111,109 @@
         <h1>✅ Census API is running</h1>
 
         <p>
-            This is a backend-only API developed as part of a
+            This is a backend-only REST API developed for the
             <strong>Census course assignment</strong>.
+            The application allows an authenticated Admin user to manage
+            census participants and related data.
         </p>
 
-        <p>
-            The purpose of the application is to allow an <strong>Admin</strong> user
-            to manage census participants and related data through a REST API.
-        </p>
-
-        <h2>How this application is used</h2>
         <p>
             There is <strong>no front-end</strong> for this application.
-            All functionality is accessed and tested using
-            <strong>Postman</strong>.
+            All functionality is tested using <strong>Postman</strong>,
+            as specified in the assignment description.
         </p>
 
         <h2>Authentication</h2>
         <p>
-            Most endpoints are protected using
-            <strong>HTTP Basic Authentication</strong>.
+            All endpoints below require <strong>HTTP Basic Authentication</strong>.
         </p>
         <ul>
             <li>Username: <code>admin</code></li>
             <li>Password: <code>P4ssword</code></li>
         </ul>
 
-        <h2>Available endpoints</h2>
-        <ul>
-            <li><code>GET /status</code> – JSON health check</li>
-            <li><code>GET /admin/test</code> – Verify admin authentication</li>
-            <li><code>POST /participants</code> – Create participant</li>
-            <li><code>GET /participants</code> – List participants</li>
-        </ul>
+        <h2>POST</h2>
+        <h3><span class="method post">POST</span> <code>/participants/add</code></h3>
+        <p>
+            Creates a new participant together with work and home data.
+            The request body must contain a <strong>nested JSON structure</strong>
+            with all required properties.
+        </p>
+
+        <pre>{
+  "participant": {
+    "email": "ola.nordmann@example.com",
+    "firstname": "Ola",
+    "lastname": "Nordmann",
+    "dob": "1999-05-20"
+  },
+  "work": {
+    "companyname": "ACME AS",
+    "salary": 650000,
+    "currency": "NOK"
+  },
+  "home": {
+    "country": "Norway",
+    "city": "Oslo"
+  }
+}</pre>
+
+        <h2>GET</h2>
+
+        <h3><span class="method get">GET</span> <code>/participants/details</code></h3>
+        <p>
+            Returns personal details for all participants
+            (email, first name and last name).
+        </p>
+
+        <h3><span class="method get">GET</span> <code>/participants/details/:email</code></h3>
+        <p>
+            Returns personal details for a single participant
+            (email, first name, last name and date of birth).
+        </p>
+
+        <h3><span class="method get">GET</span> <code>/participants/work/:email</code></h3>
+        <p>
+            Returns the work details for the specified participant
+            if the record is not marked as deleted.
+        </p>
+
+        <h3><span class="method get">GET</span> <code>/participants/home/:email</code></h3>
+        <p>
+            Returns the home details for the specified participant
+            if the record is not marked as deleted.
+        </p>
+
+        <h2>PUT</h2>
+        <h3><span class="method put">PUT</span> <code>/participants/:email</code></h3>
+        <p>
+            Updates an existing participant. The request body must use the
+            <strong>same nested JSON structure</strong> as the POST request.
+            For example, this can be used to update the participant’s city.
+        </p>
+
+        <h2>DELETE</h2>
+        <h3><span class="method delete">DELETE</span> <code>/participants/:email</code></h3>
+        <p>
+            Deletes the specified participant. Work and home records are
+            <strong>soft-deleted</strong> (marked as deleted) before the participant
+            is removed.
+        </p>
+
+        <h3><span class="method get">GET</span> work/home after DELETE</h3>
+        <p>
+            After deletion, requesting work or home data for the participant
+            will return <strong>404 Not Found</strong>, as the records are
+            marked as deleted.
+        </p>
 
         <div class="note">
             <p>
                 <strong>Note for evaluators:</strong><br />
-                This API is hosted on <strong>Render</strong> and uses a
-                <strong>MySQL database hosted on Aiven</strong>.
-                All endpoints return JSON responses and are tested via Postman,
-                as specified in the assignment description.
+                This API is hosted on Render and uses a MySQL database hosted on Aiven.
+                All endpoints return JSON responses and are tested via Postman.
             </p>
         </div>
-
-        <footer>
-            Census API · Server-side application · No front-end required
-        </footer>
     </div>
 </body>
 
