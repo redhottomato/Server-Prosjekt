@@ -1,6 +1,6 @@
 # Server Prosjekt
 
-This project is a backend-only REST API developed as part of the Census Course Assignment.  
+This project is a backend-only REST API developed as part of the Server Course Assignment.  
 The application allows an authenticated **Admin** user to manually capture and manage census participant data.
 
 The API is hosted on **Render**, uses **MySQL on Aiven**, and is tested exclusively via **Postman**.
