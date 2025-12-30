@@ -5,6 +5,10 @@ import path from "path";
 
 dotenv.config();
 
+// Had some issues with env vars not being read correctly, so added these logs for debugging
+// console.log("DB_HOST:", JSON.stringify(process.env.DB_HOST));
+// console.log("DB_PORT:", JSON.stringify(process.env.DB_PORT));
+
 const sslEnabled = process.env.DB_SSL === "true";
 
 function getCaPath() {
