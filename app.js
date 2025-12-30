@@ -43,12 +43,12 @@ async function start() {
         // ===== DEV ONLY schema auto-alter =====
         // Recommended: keep OFF in Render/production.
         // Enable locally only if needed:
-        await sequelize.sync({ alter: true });
-        console.log("DB synced (alter)");
+        // await sequelize.sync({ alter: true });
+        // console.log("DB synced (alter)");
 
         // Production-safe sync:
-        // await sequelize.sync();
-        // console.log("DB synced");
+        await sequelize.sync();
+        console.log("DB synced");
 
         // Seed admin as required by assignment
         await Admin.findOrCreate({
