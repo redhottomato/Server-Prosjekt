@@ -7,7 +7,7 @@ The API is hosted on **Render**, uses **MySQL on Aiven**, and is tested exclusiv
 
 ---
 
-## 🔗 Production URL (Render)
+## Production URL (Render)
 
 Base URL:  
 https://server-prosjekt.onrender.com/
@@ -16,7 +16,7 @@ https://server-prosjekt.onrender.com/
 
 ---
 
-## 🧩 Technology Stack
+## Technology Stack
 
 - Node.js
 - Express.js
@@ -31,6 +31,8 @@ https://server-prosjekt.onrender.com/
 
 All API endpoints are protected using **HTTP Basic Authentication**.
 
+
+
 ### Admin credentials (as required by assignment)
 - **Login:** `admin`
 - **Password:** `P4ssword`
@@ -40,6 +42,13 @@ The Admin user is **stored in the database** and is **automatically seeded at ap
 In Postman:
 - Authorization → Type: **Basic Auth**
 - Enter the credentials above
+
+
+### Security Note
+
+For the purpose of this course assignment, the admin password is stored in plaintext in the database, as explicitly specified in the assignment requirements.
+
+In a real-world production application, passwords should always be hashed (e.g. using bcrypt) and never stored in plaintext.
 
 ---
 
@@ -75,12 +84,10 @@ Example:
 - companyname (string)
 - salary (number)
 - currency (string)
-- isDeleted (boolean, default false)
 
 ### Home
 - country (string)
 - city (string)
-- isDeleted (boolean, default false)
 
 Relations:
 - Participant ↔ Work (1–1 via participant email)
@@ -98,7 +105,7 @@ All **POST** and **PUT** requests must include the following **nested JSON struc
     "email": "ola.nordmann@example.com",
     "firstname": "Ola",
     "lastname": "Nordmann",
-    "dob": "1999-05-20"
+    "dob": "1990-05-20"
   },
   "work": {
     "companyname": "ACME AS",
@@ -150,13 +157,13 @@ Returns personal details for a specific participant:
 - dob
 
 #### GET `/participants/work/:email`
-Returns work details for the participant **if not deleted**:
+Returns work details for the participant **if the record exists**:
 - companyname
 - salary
 - currency
 
 #### GET `/participants/home/:email`
-Returns home details for the participant **if not deleted**:
+Returns home details for the participant **if the record exists**:
 - country
 - city
 
@@ -165,11 +172,12 @@ Returns home details for the participant **if not deleted**:
 ### PUT
 
 #### PUT `/participants/:email`
-Updates an existing participant.
+Updates an existing participant by email.
 
-- Requires the **same nested JSON structure** as POST
-- Email in URL must match `participant.email` in body
-- Can be used to update work/home details (e.g. city)
+- Request body must follow the same JSON structure as `POST /participants/add`
+- All fields are required
+- Updates participant, work, and home details
+- Returns an error if the participant does not exist
 
 ---
 
@@ -178,12 +186,14 @@ Updates an existing participant.
 #### DELETE `/participants/:email`
 Deletes a participant by email.
 
-- Participant record is deleted
-- Work and Home records are **soft-deleted** (`isDeleted = true`)
+- Participant record is permanently deleted from the database
+- Associated Work and Home records are also removed
 
 After deletion:
 - GET `/participants/work/:email` → 404
 - GET `/participants/home/:email` → 404
+
+Note: The application uses hard deletes. Deleted records are not retained in the database.
 
 ---
 
