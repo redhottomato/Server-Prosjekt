@@ -216,12 +216,13 @@ Environment variables are configured on **Render** and are not committed to GitH
 Required variables:
 
 ```
-DB_HOST
-DB_PORT
-DB_NAME
-DB_USER
-DB_PASSWORD
+DB_HOST=your-database-host
+DB_PORT=3306
+DB_NAME=your-database-name
+DB_USER=your-database-user
+DB_PASSWORD=your-database-password
 DB_SSL=true
+
 ```
 
 The `.env` file is excluded via `.gitignore`.

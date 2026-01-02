@@ -145,7 +145,7 @@
         "email": "ola.nordmann@example.com",
         "firstname": "Ola",
         "lastname": "Nordmann",
-        "dob": "1999-05-20"
+        "dob": "1990-05-20"
     },
     "work": {
         "companyname": "ACME AS",
@@ -175,13 +175,13 @@
         <h3><span class="method get">GET</span> <code>/participants/work/:email</code></h3>
         <p>
             Returns the work details for the specified participant
-            if the record is not marked as deleted.
+            if the record exists.
         </p>
 
         <h3><span class="method get">GET</span> <code>/participants/home/:email</code></h3>
         <p>
             Returns the home details for the specified participant
-            if the record is not marked as deleted.
+            if the record exists.
         </p>
 
         <h2>PUT</h2>
@@ -195,16 +195,14 @@
         <h2>DELETE</h2>
         <h3><span class="method delete">DELETE</span> <code>/participants/:email</code></h3>
         <p>
-            Deletes the specified participant. Work and home records are
-            <strong>soft-deleted</strong> (marked as deleted) before the participant
-            is removed.
+            Deletes the specified participant. The participant record is permanently
+            removed from the database along with associated work and home records.
         </p>
 
         <h3><span class="method get">GET</span> work/home after DELETE</h3>
         <p>
             After deletion, requesting work or home data for the participant
-            will return <strong>404 Not Found</strong>, as the records are
-            marked as deleted.
+            will return <strong>404 Not Found</strong>, as the records no longer exist.
         </p>
 
         <div class="note">
