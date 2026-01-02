@@ -26,7 +26,7 @@ app.get("/status", (req, res) => {
     });
 });
 
-// app.get("/", (req, res) => res.json({ message: "Census API is running" }));
+// app.get("/", (req, res) => res.json({ message: "Server Assignment is running" }));
 
 app.get("/admin/test", basicAuth, (req, res) => {
     res.json({ message: "Admin access granted", admin: req.admin });
